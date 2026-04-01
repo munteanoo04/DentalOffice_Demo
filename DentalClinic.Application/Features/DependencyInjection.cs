@@ -1,5 +1,4 @@
-﻿// DependencyInjection.cs
-using System.Reflection;
+﻿using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 

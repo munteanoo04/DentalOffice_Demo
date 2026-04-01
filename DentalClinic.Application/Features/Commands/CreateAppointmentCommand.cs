@@ -1,13 +1,12 @@
-﻿// Features/Commands/CreateAppointmentCommand.cs
-using MediatR;
+﻿using MediatR;
 
 namespace DentalClinic.Application.Features.Commands;
 
 public record CreateAppointmentCommand(
-    Guid PatientId,
-    Guid DoctorId,
-    Guid ProcedureId,
+    int PatientId,
+    int DoctorId,
+    int ProcedureId,
     DateTime ScheduledAt,
     string TreatmentType,
     string? Notes
-) : IRequest<Guid>;
+) : IRequest<int>;
