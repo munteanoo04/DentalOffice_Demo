@@ -1,0 +1,7 @@
+﻿// Features/Queries/GetAllDoctorsQuery.cs
+using DentalClinic.Application.Contracts.DTOs;
+using MediatR;
+
+namespace DentalClinic.Application.Features.Queries;
+
+public record GetAllDoctorsQuery : IRequest<IEnumerable<DoctorDto>>;
