@@ -14,8 +14,8 @@ public class AppointmentsController : ControllerBase
     private readonly IMediator _mediator;
     public AppointmentsController(IMediator mediator) => _mediator = mediator;
 
-    [HttpGet("patient/{patientId:guid}")]
-    public async Task<IActionResult> GetByPatient(Guid patientId, CancellationToken ct)
+    [HttpGet("patient/{patientId:int}")]
+    public async Task<IActionResult> GetByPatient(int patientId, CancellationToken ct)
     {
         var result = await _mediator.Send(new GetAppointmentsByPatientQuery(patientId), ct);
         return Ok(result);
@@ -28,8 +28,8 @@ public class AppointmentsController : ControllerBase
         return Ok(id);
     }
 
-    [HttpPut("{id:guid}/cancel")]
-    public async Task<IActionResult> Cancel(Guid id, CancellationToken ct)
+    [HttpPut("{id:int}/cancel")]
+    public async Task<IActionResult> Cancel(int id, CancellationToken ct)
     {
         await _mediator.Send(new CancelAppointmentCommand(id), ct);
         return NoContent();

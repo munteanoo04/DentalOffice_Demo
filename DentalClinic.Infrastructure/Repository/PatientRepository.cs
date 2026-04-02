@@ -1,6 +1,6 @@
 ﻿using DentalClinic.Application.Contracts.Interfaces;
 using DentalClinic.Domain.Entities;
-using DentalClinic.Infrastructure.DbContext;
+using DentalClinic.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace DentalClinic.Infrastructure.Repository;
@@ -38,7 +38,7 @@ public class PatientRepository : IPatientRepository
         var patient = await GetByIdAsync(id, ct);
         if (patient is not null)
         {
-            patient.Deactivate();
+            patient.IsActive = false;  // ← corectat
             await _ctx.SaveChangesAsync(ct);
         }
     }

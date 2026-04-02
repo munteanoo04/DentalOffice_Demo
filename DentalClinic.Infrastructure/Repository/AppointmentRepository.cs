@@ -1,6 +1,6 @@
 ﻿using DentalClinic.Application.Contracts.Interfaces;
 using DentalClinic.Domain.Entities;
-using DentalClinic.Infrastructure.DbContext;
+using DentalClinic.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace DentalClinic.Infrastructure.Repository;
@@ -8,7 +8,11 @@ namespace DentalClinic.Infrastructure.Repository;
 public class AppointmentRepository : IAppointmentRepository
 {
     private readonly AppDbContext _ctx;
-    public AppointmentRepository(AppDbContext ctx) => _ctx = ctx;
+
+    public AppointmentRepository(AppDbContext ctx)
+    {
+        _ctx = ctx;
+    }
 
     public async Task<Appointment?> GetByIdAsync(int id, CancellationToken ct = default)
         => await _ctx.Appointments
@@ -23,7 +27,7 @@ public class AppointmentRepository : IAppointmentRepository
             .Include(a => a.Doctor)
             .Include(a => a.Procedure)
             .Where(a => a.PatientId == patientId)
-            .OrderByDescending(a => a.ScheduledAt)
+            .OrderByDescending(a => a.ScheduledAt)  // ← schimbă aici
             .ToListAsync(ct);
 
     public async Task<IEnumerable<Appointment>> GetByDoctorIdAsync(int doctorId, CancellationToken ct = default)
@@ -32,7 +36,7 @@ public class AppointmentRepository : IAppointmentRepository
             .Include(a => a.Doctor)
             .Include(a => a.Procedure)
             .Where(a => a.DoctorId == doctorId)
-            .OrderByDescending(a => a.ScheduledAt)
+            .OrderByDescending(a => a.ScheduledAt)  // ← și aici
             .ToListAsync(ct);
 
     public async Task AddAsync(Appointment appointment, CancellationToken ct = default)
