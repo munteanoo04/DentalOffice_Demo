@@ -1,8 +1,7 @@
-﻿// Contracts/DTOs/ProcedureDto.cs
-namespace DentalClinic.Application.Contracts.DTOs;
+﻿namespace DentalClinic.Application.Contracts.DTOs;
 
 public record ProcedureDto(
-    Guid Id,
+    int Id,
     string Name,
     string Description,
     decimal Price,

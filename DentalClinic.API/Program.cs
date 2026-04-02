@@ -1,34 +1,51 @@
+using System.Text;
+using DentalClinic.Application;
+using DentalClinic.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
-namespace DentalClinic.API
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opts =>
+    {
+        opts.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddCors(opts =>
+    opts.AddPolicy("BlazorPolicy", policy =>
+        policy.WithOrigins("https://localhost:7001")
+              .AllowAnyHeader()
+              .AllowAnyMethod()));
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
 {
-     public class Program
-     {
-          public static void Main(string[] args)
-          {
-               var builder = WebApplication.CreateBuilder(args);
-
-               // Add services to the container.
-
-               builder.Services.AddControllers();
-               // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-               builder.Services.AddOpenApi();
-
-               var app = builder.Build();
-
-               // Configure the HTTP request pipeline.
-               if (app.Environment.IsDevelopment())
-               {
-                    app.MapOpenApi();
-               }
-
-               app.UseHttpsRedirection();
-
-               app.UseAuthorization();
-
-
-               app.MapControllers();
-
-               app.Run();
-          }
-     }
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
+app.UseCors("BlazorPolicy");
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+app.Run();

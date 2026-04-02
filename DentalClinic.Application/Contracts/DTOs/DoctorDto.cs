@@ -1,10 +1,9 @@
-﻿// Contracts/DTOs/DoctorDto.cs
-namespace DentalClinic.Application.Contracts.DTOs;
+﻿namespace DentalClinic.Application.Contracts.DTOs;
 
 public record DoctorDto(
-    Guid Id,
-    string Name,
+    int Id,
     string FirstName,
+    string LastName,
     string Email,
     string PhoneNumber,
     string Specialization,

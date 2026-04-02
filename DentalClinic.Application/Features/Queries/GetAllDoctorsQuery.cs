@@ -1,5 +1,4 @@
-﻿// Features/Queries/GetAllDoctorsQuery.cs
-using DentalClinic.Application.Contracts.DTOs;
+﻿using DentalClinic.Application.Contracts.DTOs;
 using MediatR;
 
 namespace DentalClinic.Application.Features.Queries;
