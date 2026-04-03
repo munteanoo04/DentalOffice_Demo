@@ -1,0 +1,70 @@
+﻿@page "/doctors"
+@inject DoctorService DoctorSvc
+@rendermode InteractiveServer
+
+<h3>Doctors</h3>
+<button @onclick="() => _showForm = !_showForm">+ Add Doctor</button>
+
+@if (_showForm)
+{
+    <div style="padding:16px; border:1px solid #ccc; margin:12px 0;">
+        <input placeholder="First name"
+               @bind="_req.FirstName" style="display:block; margin-bottom:6px;" />
+        <input placeholder="Last name"
+               @bind="_req.LastName" style="display:block; margin-bottom:6px;" />
+        <input placeholder="Email"
+               @bind="_req.Email" style="display:block; margin-bottom:6px;" />
+        <input placeholder="Phone"
+               @bind="_req.PhoneNumber" style="display:block; margin-bottom:6px;" />
+        <input placeholder="Specialization"
+               @bind="_req.Specialization" style="display:block; margin-bottom:6px;" />
+        <button @onclick="HandleCreate">Save</button>
+    </div>
+}
+
+@if (_doctors is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <table style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr>
+                <th style="text-align:left; padding:8px;">Name</th>
+                <th style="text-align:left; padding:8px;">Email</th>
+                <th style="text-align:left; padding:8px;">Specialization</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in _doctors)
+            {
+                <tr style="border-top:1px solid #eee;">
+                    <td style="padding:8px;">@d.FirstName @d.LastName</td>
+                    <td style="padding:8px;">@d.Email</td>
+                    <td style="padding:8px;">@d.Specialization</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<DoctorDto>? _doctors = null;
+    bool _showForm = false;
+    CreateDoctorRequest _req = new();
+
+    protected override async Task OnInitializedAsync()
+        => _doctors = await DoctorSvc.GetAllAsync();
+
+    async Task HandleCreate()
+    {
+        var ok = await DoctorSvc.CreateAsync(_req);
+        if (ok)
+        {
+            _showForm = false;
+            _req = new();
+            _doctors = await DoctorSvc.GetAllAsync();
+        }
+    }
+}

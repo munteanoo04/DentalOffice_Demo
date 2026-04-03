@@ -1,36 +1,42 @@
+using DentalClinic.Web.Auth;
 using DentalClinic.Web.Components;
+using DentalClinic.Web.Services;
 
-namespace DentalClinic.Web
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
+// API Base URL = DentalClinic.API
+builder.Services.AddHttpClient<AuthService>(client =>
+    client.BaseAddress = new Uri("https://localhost:7173/"));
+
+builder.Services.AddHttpClient<PatientService>(client =>
+    client.BaseAddress = new Uri("https://localhost:7173/"));
+
+builder.Services.AddHttpClient<DoctorService>(client =>
+    client.BaseAddress = new Uri("https://localhost:7173/"));
+
+builder.Services.AddHttpClient<AppointmentService>(client =>
+    client.BaseAddress = new Uri("https://localhost:7173/"));
+
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<PatientService>();
+builder.Services.AddScoped<DoctorService>();
+builder.Services.AddScoped<AppointmentService>();
+
+var app = builder.Build();
+
+if (!app.Environment.IsDevelopment())
 {
-     public class Program
-     {
-          public static void Main(string[] args)
-          {
-               var builder = WebApplication.CreateBuilder(args);
-
-               // Add services to the container.
-               builder.Services.AddRazorComponents()
-                   .AddInteractiveServerComponents();
-
-               var app = builder.Build();
-
-               // Configure the HTTP request pipeline.
-               if (!app.Environment.IsDevelopment())
-               {
-                    app.UseExceptionHandler("/Error");
-                    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                    app.UseHsts();
-               }
-
-               app.UseHttpsRedirection();
-
-               app.UseAntiforgery();
-
-               app.MapStaticAssets();
-               app.MapRazorComponents<App>()
-                   .AddInteractiveServerRenderMode();
-
-               app.Run();
-          }
-     }
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
 }
+
+app.UseHttpsRedirection();
+app.UseAntiforgery();
+app.MapStaticAssets();
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
+
+app.Run();

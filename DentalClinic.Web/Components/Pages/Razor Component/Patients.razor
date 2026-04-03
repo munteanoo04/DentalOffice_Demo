@@ -1,0 +1,72 @@
+﻿@page "/patients"
+@inject PatientService PatientSvc
+@rendermode InteractiveServer
+
+<h3>Patients</h3>
+<button @onclick="() => _showForm = !_showForm">+ Add Patient</button>
+
+@if (_showForm)
+{
+    <div style="padding:16px; border:1px solid #ccc; margin:12px 0;">
+        <input placeholder="First name" @bind="_req.FirstName"
+               style="display:block; margin-bottom:6px;" />
+        <input placeholder="Last name" @bind="_req.LastName"
+               style="display:block; margin-bottom:6px;" />
+        <input placeholder="Email" @bind="_req.Email"
+               style="display:block; margin-bottom:6px;" />
+        <input placeholder="Phone" @bind="_req.PhoneNumber"
+               style="display:block; margin-bottom:6px;" />
+        <input type="date" @bind="_req.DateOfBirth"
+               style="display:block; margin-bottom:6px;" />
+        <button @onclick="HandleCreate">Save</button>
+    </div>
+}
+
+@if (_patients is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <table style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr>
+                <th style="text-align:left; padding:8px;">Name</th>
+                <th style="text-align:left; padding:8px;">Email</th>
+                <th style="text-align:left; padding:8px;">Phone</th>
+                <th style="text-align:left; padding:8px;">Age</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in _patients)
+            {
+                <tr style="border-top:1px solid #eee;">
+                    <td style="padding:8px;">@p.FirstName @p.LastName</td>
+                    <td style="padding:8px;">@p.Email</td>
+                    <td style="padding:8px;">@p.PhoneNumber</td>
+                    <td style="padding:8px;">@p.Age</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<PatientDto>? _patients = null;
+    bool _showForm = false;
+    CreatePatientRequest _req = new();
+
+    protected override async Task OnInitializedAsync()
+        => _patients = await PatientSvc.GetAllAsync();
+
+    async Task HandleCreate()
+    {
+        var ok = await PatientSvc.CreateAsync(_req);
+        if (ok)
+        {
+            _showForm = false;
+            _req = new();
+            _patients = await PatientSvc.GetAllAsync();
+        }
+    }
+}
