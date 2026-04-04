@@ -1,57 +1,65 @@
 ﻿@page "/appointments"
 @inject AppointmentService AppointmentSvc
+@inject AuthService AuthSvc
 @rendermode InteractiveServer
 
 <h3>Appointments</h3>
 
-<div style="margin-bottom:16px;">
-    <input type="number" placeholder="Patient ID"
-           @bind="_patientId" style="margin-right:8px;" />
-    <button @onclick="LoadAppointments">Search</button>
-</div>
-
-@if (_appointments is null)
+@if (!AuthSvc.IsLoggedIn)
 {
-    <p>Enter a patient ID to search.</p>
-}
-else if (!_appointments.Any())
-{
-    <p>No appointments found.</p>
+    <p>Please <a href="/login">login</a> first.</p>
 }
 else
 {
-    <table style="width:100%; border-collapse:collapse;">
-        <thead>
-            <tr>
-                <th style="text-align:left; padding:8px;">Date</th>
-                <th style="text-align:left; padding:8px;">Doctor</th>
-                <th style="text-align:left; padding:8px;">Procedure</th>
-                <th style="text-align:left; padding:8px;">Status</th>
-                <th style="text-align:left; padding:8px;">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var a in _appointments)
-            {
-                <tr style="border-top:1px solid #eee;">
-                    <td style="padding:8px;">
-                        @a.ScheduledAt.ToString("dd MMM yyyy HH:mm")
-                    </td>
-                    <td style="padding:8px;">@a.DoctorName</td>
-                    <td style="padding:8px;">@a.ProcedureName</td>
-                    <td style="padding:8px;">@a.Status</td>
-                    <td style="padding:8px;">
-                        @if (a.Status == "Scheduled")
-                        {
-                            <button @onclick="() => HandleCancel(a.Id)">
-                                Cancel
-                            </button>
-                        }
-                    </td>
+    <div style="margin-bottom:16px;">
+        <input type="number" placeholder="Patient ID"
+               @bind="_patientId" style="margin-right:8px;" />
+        <button @onclick="LoadAppointments">Search</button>
+    </div>
+
+    @if (_appointments is null)
+    {
+        <p>Enter a patient ID to search.</p>
+    }
+    else if (!_appointments.Any())
+    {
+        <p>No appointments found.</p>
+    }
+    else
+    {
+        <table style="width:100%; border-collapse:collapse;">
+            <thead>
+                <tr>
+                    <th style="text-align:left; padding:8px;">Date</th>
+                    <th style="text-align:left; padding:8px;">Doctor</th>
+                    <th style="text-align:left; padding:8px;">Procedure</th>
+                    <th style="text-align:left; padding:8px;">Status</th>
+                    <th style="text-align:left; padding:8px;">Action</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var a in _appointments)
+                {
+                    <tr style="border-top:1px solid #eee;">
+                        <td style="padding:8px;">
+                            @a.ScheduledAt.ToString("dd MMM yyyy HH:mm")
+                        </td>
+                        <td style="padding:8px;">@a.DoctorName</td>
+                        <td style="padding:8px;">@a.ProcedureName</td>
+                        <td style="padding:8px;">@a.Status</td>
+                        <td style="padding:8px;">
+                            @if (a.Status == "Scheduled")
+                            {
+                                <button @onclick="() => HandleCancel(a.Id)">
+                                    Cancel
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 }
 
 @code {

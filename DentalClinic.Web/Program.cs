@@ -7,8 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// API Base URL = DentalClinic.API
-builder.Services.AddHttpClient<AuthService>(client =>
+builder.Services.AddHttpClient("auth", client =>
     client.BaseAddress = new Uri("https://localhost:7173/"));
 
 builder.Services.AddHttpClient<PatientService>(client =>
@@ -20,10 +19,7 @@ builder.Services.AddHttpClient<DoctorService>(client =>
 builder.Services.AddHttpClient<AppointmentService>(client =>
     client.BaseAddress = new Uri("https://localhost:7173/"));
 
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<PatientService>();
-builder.Services.AddScoped<DoctorService>();
-builder.Services.AddScoped<AppointmentService>();
+builder.Services.AddSingleton<AuthService>();
 
 var app = builder.Build();
 

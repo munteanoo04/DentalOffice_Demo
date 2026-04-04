@@ -16,19 +16,15 @@ public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand,
     public async Task<int> Handle(CreatePatientCommand cmd, CancellationToken ct)
     {
         var existing = await _repo.GetByEmailAsync(cmd.Email, ct);
-
         if (existing is not null)
             throw new Exception($"Patient with email {cmd.Email} already exists.");
 
-        var patient = new Patient
-        {
-            FirstName = cmd.FirstName,
-            LastName = cmd.LastName,
-            Email = cmd.Email,
-            PhoneNumber = cmd.PhoneNumber,
-            DateOfBirth = cmd.DateOfBirth,
-            IsActive = true
-        };
+        var patient = Patient.Create(
+            cmd.FirstName,
+            cmd.LastName,
+            cmd.Email,
+            cmd.PhoneNumber,
+            cmd.DateOfBirth);
 
         await _repo.AddAsync(patient, ct);
         return patient.Id;

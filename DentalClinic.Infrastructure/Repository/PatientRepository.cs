@@ -38,7 +38,7 @@ public class PatientRepository : IPatientRepository
         var patient = await GetByIdAsync(id, ct);
         if (patient is not null)
         {
-            patient.IsActive = false;  // ← corectat
+            patient.Deactivate(); // ← use the domain method, not direct property
             await _ctx.SaveChangesAsync(ct);
         }
     }

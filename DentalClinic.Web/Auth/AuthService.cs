@@ -4,15 +4,17 @@ namespace DentalClinic.Web.Auth;
 
 public class AuthService
 {
-    private readonly HttpClient _http;
+    private readonly IHttpClientFactory _factory;
     public string? Token { get; private set; }
     public bool IsLoggedIn => !string.IsNullOrEmpty(Token);
 
-    public AuthService(HttpClient http) => _http = http;
+    public AuthService(IHttpClientFactory factory) => _factory = factory;
 
     public async Task<bool> LoginAsync(string email, string password)
     {
-        var response = await _http.PostAsJsonAsync(
+        var http = _factory.CreateClient("auth");
+
+        var response = await http.PostAsJsonAsync(
             "api/auth/login",
             new { email, password });
 

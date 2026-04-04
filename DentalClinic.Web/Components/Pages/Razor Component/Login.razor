@@ -10,10 +10,10 @@
     <p style="color:red">Invalid email or password.</p>
 }
 
-<input type="email" @bind="_email" placeholder="Email"
-       style="display:block; margin-bottom:8px;" />
-<input type="password" @bind="_password" placeholder="Password"
-       style="display:block; margin-bottom:8px;" />
+<input type="email" @bind="_email"
+       placeholder="Email" style="display:block; margin-bottom:8px;" />
+<input type="password" @bind="_password"
+       placeholder="Password" style="display:block; margin-bottom:8px;" />
 <button @onclick="HandleLogin">Login</button>
 
 @code {
