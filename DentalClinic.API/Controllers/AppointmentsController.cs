@@ -1,5 +1,4 @@
 ﻿using DentalClinic.Application.Features.Commands;
-using DentalClinic.Application.Features.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

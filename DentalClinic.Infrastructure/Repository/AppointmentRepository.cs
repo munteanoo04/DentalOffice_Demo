@@ -27,7 +27,7 @@ public class AppointmentRepository : IAppointmentRepository
             .Include(a => a.Doctor)
             .Include(a => a.Procedure)
             .Where(a => a.PatientId == patientId)
-            .OrderByDescending(a => a.ScheduledAt)  // ← schimbă aici
+            .OrderByDescending(a => a.ScheduledAt) 
             .ToListAsync(ct);
 
     public async Task<IEnumerable<Appointment>> GetByDoctorIdAsync(int doctorId, CancellationToken ct = default)
@@ -36,7 +36,7 @@ public class AppointmentRepository : IAppointmentRepository
             .Include(a => a.Doctor)
             .Include(a => a.Procedure)
             .Where(a => a.DoctorId == doctorId)
-            .OrderByDescending(a => a.ScheduledAt)  // ← și aici
+            .OrderByDescending(a => a.ScheduledAt) 
             .ToListAsync(ct);
 
     public async Task AddAsync(Appointment appointment, CancellationToken ct = default)

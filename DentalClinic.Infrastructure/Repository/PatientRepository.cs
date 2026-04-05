@@ -38,7 +38,7 @@ public class PatientRepository : IPatientRepository
         var patient = await GetByIdAsync(id, ct);
         if (patient is not null)
         {
-            patient.Deactivate(); // ← use the domain method, not direct property
+            patient.Deactivate(); 
             await _ctx.SaveChangesAsync(ct);
         }
     }

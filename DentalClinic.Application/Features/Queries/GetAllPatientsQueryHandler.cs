@@ -1,7 +1,7 @@
 ﻿using DentalClinic.Application.Contracts.DTOs;
 using DentalClinic.Application.Contracts.Interfaces;
 using MediatR;
-using System.Linq;
+
 
 namespace DentalClinic.Application.Features.Queries;
 

@@ -1,5 +1,4 @@
-﻿// Contracts/DTOs/AppointmentDto.cs
-namespace DentalClinic.Application.Contracts.DTOs;
+﻿namespace DentalClinic.Application.Contracts.DTOs;
 
 public record AppointmentDto(
     Guid Id,

@@ -14,6 +14,5 @@ public class Procedure
     public bool RequiresAnesthesia { get; set; }
     public bool IsActive { get; set; } = true;
 
-    // Relationships
     public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 }

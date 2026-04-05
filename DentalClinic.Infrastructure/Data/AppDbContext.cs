@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace DentalClinic.Infrastructure.Data  // ← folderul trebuie să fie "Data"
+namespace DentalClinic.Infrastructure.Data  
 {
-    public class AppDbContext : IdentityDbContext<ApplicationUser>  // ← IdentityDbContext, nu DbContext
+    public class AppDbContext : IdentityDbContext<ApplicationUser>  
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
