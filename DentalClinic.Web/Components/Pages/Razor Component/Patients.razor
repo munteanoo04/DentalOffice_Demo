@@ -1,78 +1,125 @@
 ﻿@page "/patients"
+@using DentalClinic.Web.Models
 @inject PatientService PatientSvc
 @inject AuthService AuthSvc
+@inject NavigationManager Nav
 @rendermode InteractiveServer
 
-<h3>Patients</h3>
+<h3 class="mb-4">👤 Patients</h3>
 
 @if (!AuthSvc.IsLoggedIn)
 {
-    <p>Please <a href="/login">login</a> first.</p>
+    <div class="alert alert-warning">
+        Please <a href="/login">login</a> first.
+    </div>
 }
 else
 {
-    <button @onclick="() => _showForm = !_showForm">+ Add Patient</button>
+    <button class="btn btn-primary mb-3" @onclick="ToggleForm">
+        + Add Patient
+    </button>
 
     @if (_showForm)
     {
-        <div style="padding:16px; border:1px solid #ccc; margin:12px 0;">
-            <input placeholder="First name"
-                   @bind="_req.FirstName" style="display:block; margin-bottom:6px;" />
-            <input placeholder="Last name"
-                   @bind="_req.LastName" style="display:block; margin-bottom:6px;" />
-            <input placeholder="Email"
-                   @bind="_req.Email" style="display:block; margin-bottom:6px;" />
-            <input placeholder="Phone"
-                   @bind="_req.PhoneNumber" style="display:block; margin-bottom:6px;" />
-            <input type="date"
-                   @bind="_req.DateOfBirth" style="display:block; margin-bottom:6px;" />
-            <button @onclick="HandleCreate">Save</button>
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <input class="form-control" placeholder="First name"
+                               @bind="_req.FirstName" />
+                    </div>
+                    <div class="col-md-6">
+                        <input class="form-control" placeholder="Last name"
+                               @bind="_req.LastName" />
+                    </div>
+                    <div class="col-md-6">
+                        <input class="form-control" placeholder="Email"
+                               @bind="_req.Email" />
+                    </div>
+                    <div class="col-md-6">
+                        <input class="form-control" placeholder="Phone"
+                               @bind="_req.PhoneNumber" />
+                    </div>
+                    <div class="col-md-6">
+                        <input type="date" class="form-control"
+                               @bind-value="_req.DateOfBirth"
+                               @bind-value:event="onchange" />
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-success" @onclick="HandleCreate">
+                            Save
+                        </button>
+                        <button class="btn btn-secondary ms-2" @onclick="CloseForm">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     }
 
-    @if (_patients is null)
+    @if (_patients == null)
     {
-        <p>Loading...</p>
+        <div class="spinner-border text-primary"></div>
     }
     else if (!_patients.Any())
     {
-        <p>No patients found.</p>
+        <div class="alert alert-info">No patients found.</div>
     }
     else
     {
-        <table style="width:100%; border-collapse:collapse;">
-            <thead>
-                <tr>
-                    <th style="text-align:left; padding:8px;">Name</th>
-                    <th style="text-align:left; padding:8px;">Email</th>
-                    <th style="text-align:left; padding:8px;">Phone</th>
-                    <th style="text-align:left; padding:8px;">Age</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var p in _patients)
-                {
-                    <tr style="border-top:1px solid #eee;">
-                        <td style="padding:8px;">@p.FirstName @p.LastName</td>
-                        <td style="padding:8px;">@p.Email</td>
-                        <td style="padding:8px;">@p.PhoneNumber</td>
-                        <td style="padding:8px;">@p.Age</td>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Age</th>
+                        <th>Actions</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var p in _patients)
+                    {
+                        <tr>
+                            <td>@p.FirstName @p.LastName</td>
+                            <td>@p.Email</td>
+                            <td>@p.PhoneNumber</td>
+                            <td>@p.Age</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm"
+                                        @onclick="() => HandleDelete(p.Id)">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 }
 
 @code {
-    List<PatientDto>? _patients = null;
-    bool _showForm = false;
+    List<PatientDto>? _patients;
+    bool _showForm;
     CreatePatientRequest _req = new();
 
     protected override async Task OnInitializedAsync()
     {
-        if (AuthSvc.IsLoggedIn)
-            _patients = await PatientSvc.GetAllAsync();
+        if (!AuthSvc.IsLoggedIn)
+        {
+            try { Nav.NavigateTo("/login", forceLoad: false); } catch { }
+            return;
+        }
+
+        await LoadPatients();
+    }
+
+    async Task LoadPatients()
+    {
+        _patients = await PatientSvc.GetAllAsync();
     }
 
     async Task HandleCreate()
@@ -82,7 +129,16 @@ else
         {
             _showForm = false;
             _req = new();
-            _patients = await PatientSvc.GetAllAsync();
+            await LoadPatients();
         }
     }
+
+    async Task HandleDelete(int id)
+    {
+        await PatientSvc.DeleteAsync(id);
+        await LoadPatients();
+    }
+
+    void ToggleForm() => _showForm = !_showForm;
+    void CloseForm() => _showForm = false;
 }

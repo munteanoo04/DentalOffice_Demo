@@ -22,9 +22,18 @@ public class PatientsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreatePatientCommand cmd, CancellationToken ct)
+    public async Task<IActionResult> Create(
+        CreatePatientCommand cmd, CancellationToken ct)
     {
         var id = await _mediator.Send(cmd, ct);
         return Ok(id);
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    {
+        await _mediator.Send(new DeletePatientCommand(id), ct);
+        return NoContent();
     }
 }

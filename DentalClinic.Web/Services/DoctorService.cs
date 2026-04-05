@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Headers;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using DentalClinic.Web.Auth;
 using DentalClinic.Web.Models;
 
@@ -7,39 +6,31 @@ namespace DentalClinic.Web.Services;
 
 public class DoctorService
 {
-    private readonly HttpClient _http;
     private readonly AuthService _auth;
 
-    public DoctorService(HttpClient http, AuthService auth)
+    public DoctorService(AuthService auth)
     {
-        _http = http;
         _auth = auth;
     }
 
-    private void AttachToken() =>
-        _http.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", _auth.Token);
-
     public async Task<List<DoctorDto>> GetAllAsync()
     {
-        AttachToken();
-        return await _http.GetFromJsonAsync<List<DoctorDto>>("api/doctors")
-               ?? new List<DoctorDto>();
+        var http = _auth.CreateAuthorizedClient();
+        var result = await http.GetFromJsonAsync<List<DoctorDto>>("api/doctors");
+        return result ?? new List<DoctorDto>();
     }
 
-    public async Task<bool> CreateAsync(CreateDoctorRequest req)
+    public async Task<bool> CreateAsync(CreateDoctorRequest request)
     {
-        AttachToken();
-        var response = await _http.PostAsJsonAsync("api/doctors", req);
+        var http = _auth.CreateAuthorizedClient();
+        var response = await http.PostAsJsonAsync("api/doctors", request);
         return response.IsSuccessStatusCode;
     }
-}
 
-public class CreateDoctorRequest
-{
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-    public string PhoneNumber { get; set; } = string.Empty;
-    public string Specialization { get; set; } = string.Empty;
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var http = _auth.CreateAuthorizedClient();
+        var response = await http.DeleteAsync($"api/doctors/{id}");
+        return response.IsSuccessStatusCode;
+    }
 }

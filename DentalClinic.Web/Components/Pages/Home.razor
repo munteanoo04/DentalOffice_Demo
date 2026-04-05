@@ -1,7 +1,79 @@
 ﻿@page "/"
+@inject AuthService AuthSvc
+@inject NavigationManager Nav
 
-<PageTitle>Home</PageTitle>
+<div class="container py-5">
 
-<h1>Hello, world!</h1>
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-primary">🦷 Dental Clinic</h1>
+        <p class="lead text-muted">
+            Modern dental care management — patients, doctors, appointments.
+        </p>
+        @if (!AuthSvc.IsLoggedIn)
+        {
+            <a href="/login" class="btn btn-primary btn-lg mt-3">
+                Login to get started
+            </a>
+        }
+        else
+        {
+            <a href="/patients" class="btn btn-primary btn-lg mt-3 me-2">
+                View Patients
+            </a>
+            <a href="/appointments" class="btn btn-outline-primary btn-lg mt-3">
+                View Appointments
+            </a>
+        }
+    </div>
 
-Welcome to your new app.
+    <div class="row g-4 mt-2">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="display-5 mb-3">👤</div>
+                    <h4 class="card-title">Patients</h4>
+                    <p class="card-text text-muted">
+                        Manage patient records, contact details,
+                        and appointment history.
+                    </p>
+                    <a href="/patients" class="btn btn-outline-primary mt-2">
+                        Go to Patients
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="display-5 mb-3">👨‍⚕️</div>
+                    <h4 class="card-title">Doctors</h4>
+                    <p class="card-text text-muted">
+                        Manage your dental team, specializations,
+                        and contact information.
+                    </p>
+                    <a href="/doctors" class="btn btn-outline-primary mt-2">
+                        Go to Doctors
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="display-5 mb-3">📅</div>
+                    <h4 class="card-title">Appointments</h4>
+                    <p class="card-text text-muted">
+                        Schedule, track and manage patient
+                        appointments and treatments.
+                    </p>
+                    <a href="/appointments" class="btn btn-outline-primary mt-2">
+                        Go to Appointments
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

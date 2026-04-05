@@ -3,18 +3,43 @@
 @inject NavigationManager Nav
 @rendermode InteractiveServer
 
-<h3>Dental Clinic Login</h3>
-
-@if (_error)
-{
-    <p style="color:red">Invalid email or password.</p>
-}
-
-<input type="email" @bind="_email"
-       placeholder="Email" style="display:block; margin-bottom:8px;" />
-<input type="password" @bind="_password"
-       placeholder="Password" style="display:block; margin-bottom:8px;" />
-<button @onclick="HandleLogin">Login</button>
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white text-center">
+                <h4>🦷 Dental Clinic Login</h4>
+            </div>
+            <div class="card-body p-4">
+                @if (_error)
+                {
+                    <div class="alert alert-danger">
+                        Invalid email or password.
+                    </div>
+                }
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control"
+                           @bind="_email" placeholder="your@email.com" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control"
+                           @bind="_password" placeholder="••••••" />
+                </div>
+                <button class="btn btn-primary w-100 mb-3"
+                        @onclick="HandleLogin">
+                    Login
+                </button>
+                <div class="text-center">
+                    <small>
+                        Don't have an account?
+                        <a href="/register">Register here</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
     string _email = string.Empty;

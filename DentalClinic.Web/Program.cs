@@ -7,19 +7,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddHttpClient("auth", client =>
-    client.BaseAddress = new Uri("https://localhost:7173/"));
+// Named HttpClient for API
+builder.Services.AddHttpClient("api", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7173/");
+});
 
-builder.Services.AddHttpClient<PatientService>(client =>
-    client.BaseAddress = new Uri("https://localhost:7173/"));
-
-builder.Services.AddHttpClient<DoctorService>(client =>
-    client.BaseAddress = new Uri("https://localhost:7173/"));
-
-builder.Services.AddHttpClient<AppointmentService>(client =>
-    client.BaseAddress = new Uri("https://localhost:7173/"));
-
-builder.Services.AddSingleton<AuthService>();
+// Services
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<PatientService>();
+builder.Services.AddScoped<DoctorService>();
+builder.Services.AddScoped<AppointmentService>();
 
 var app = builder.Build();
 
@@ -31,6 +29,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAntiforgery();
+
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

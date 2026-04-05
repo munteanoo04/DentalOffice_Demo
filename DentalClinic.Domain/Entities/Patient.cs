@@ -10,7 +10,9 @@ public class Patient
     public DateTime DateOfBirth { get; private set; }
     public bool IsActive { get; private set; }
 
-    public int Age => DateTime.UtcNow.Year - DateOfBirth.Year;
+    public int Age =>
+    DateTime.Now.Year - DateOfBirth.Year -
+    (DateTime.Now.DayOfYear < DateOfBirth.DayOfYear ? 1 : 0);
 
     public ICollection<Appointment> Appointments { get; private set; } = new List<Appointment>();
 

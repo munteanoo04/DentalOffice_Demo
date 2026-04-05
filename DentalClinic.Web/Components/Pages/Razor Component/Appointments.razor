@@ -2,63 +2,79 @@
 @inject AppointmentService AppointmentSvc
 @inject AuthService AuthSvc
 @rendermode InteractiveServer
+@inject NavigationManager Nav
 
-<h3>Appointments</h3>
+<h3 class="mb-4">📅 Appointments</h3>
 
 @if (!AuthSvc.IsLoggedIn)
 {
-    <p>Please <a href="/login">login</a> first.</p>
+    <div class="alert alert-warning">
+        Please <a href="/login">login</a> first.
+    </div>
 }
 else
 {
-    <div style="margin-bottom:16px;">
-        <input type="number" placeholder="Patient ID"
-               @bind="_patientId" style="margin-right:8px;" />
-        <button @onclick="LoadAppointments">Search</button>
+    <div class="input-group mb-4" style="max-width:400px;">
+        <input type="number" class="form-control"
+               placeholder="Enter Patient ID"
+               @bind="_patientId" />
+        <button class="btn btn-primary"
+                @onclick="LoadAppointments">
+            Search
+        </button>
     </div>
 
     @if (_appointments is null)
     {
-        <p>Enter a patient ID to search.</p>
+        <div class="alert alert-secondary">
+            Enter a patient ID to search appointments.
+        </div>
     }
     else if (!_appointments.Any())
     {
-        <p>No appointments found.</p>
+        <div class="alert alert-info">No appointments found.</div>
     }
     else
     {
-        <table style="width:100%; border-collapse:collapse;">
-            <thead>
-                <tr>
-                    <th style="text-align:left; padding:8px;">Date</th>
-                    <th style="text-align:left; padding:8px;">Doctor</th>
-                    <th style="text-align:left; padding:8px;">Procedure</th>
-                    <th style="text-align:left; padding:8px;">Status</th>
-                    <th style="text-align:left; padding:8px;">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var a in _appointments)
-                {
-                    <tr style="border-top:1px solid #eee;">
-                        <td style="padding:8px;">
-                            @a.ScheduledAt.ToString("dd MMM yyyy HH:mm")
-                        </td>
-                        <td style="padding:8px;">@a.DoctorName</td>
-                        <td style="padding:8px;">@a.ProcedureName</td>
-                        <td style="padding:8px;">@a.Status</td>
-                        <td style="padding:8px;">
-                            @if (a.Status == "Scheduled")
-                            {
-                                <button @onclick="() => HandleCancel(a.Id)">
-                                    Cancel
-                                </button>
-                            }
-                        </td>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Date</th>
+                        <th>Doctor</th>
+                        <th>Procedure</th>
+                        <th>Treatment</th>
+                        <th>Status</th>
+                        <th>Action</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var a in _appointments)
+                    {
+                        <tr>
+                            <td>@a.ScheduledAt.ToString("dd MMM yyyy HH:mm")</td>
+                            <td>@a.DoctorName</td>
+                            <td>@a.ProcedureName</td>
+                            <td>@a.TreatmentType</td>
+                            <td>
+                                <span class="badge @GetStatusBadge(a.Status)">
+                                    @a.Status
+                                </span>
+                            </td>
+                            <td>
+                                @if (a.Status == "Scheduled")
+                                {
+                                    <button class="btn btn-warning btn-sm"
+                                            @onclick="() => HandleCancel(a.Id)">
+                                        Cancel
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 }
 
@@ -74,4 +90,28 @@ else
         await AppointmentSvc.CancelAsync(id);
         await LoadAppointments();
     }
-}
+    protected override async Task OnInitializedAsync()
+    {
+        if (!AuthSvc.IsLoggedIn)
+        {
+            try { Nav.NavigateTo("/login", forceLoad: false); } catch { }
+            return;
+        }
+        await LoadAppointments();
+
+    }
+
+    string GetStatusBadge(string status) => status switch
+    {
+        "Scheduled" => "bg-primary",
+        "Completed" => "bg-success",
+        "Cancelled" => "bg-danger",
+        "InProgress" => "bg-warning text-dark",
+        "NoShow" => "bg-secondary",
+        _ => "bg-light text-dark"
+    };
+}    
+
+
+    
+        

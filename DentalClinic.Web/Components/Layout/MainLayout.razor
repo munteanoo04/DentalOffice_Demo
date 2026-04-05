@@ -1,16 +1,48 @@
 ﻿@inherits LayoutComponentBase
+@inject AuthService AuthSvc
+@inject NavigationManager Nav
 
-<nav style="padding:16px; background:#f0f0f0; margin-bottom:24px;">
-    <a href="/login" style="margin-right:16px;">Login</a>
-    <a href="/patients" style="margin-right:16px;">Patients</a>
-    <a href="/doctors" style="margin-right:16px;">Doctors</a>
-    <a href="/appointments" style="margin-right:16px;">Appointments</a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="/">🦷 Dental Clinic</a>
+        <div class="navbar-nav ms-auto d-flex flex-row gap-3">
+            @if (!AuthSvc.IsLoggedIn)
+            {
+                <a class="nav-link text-white" href="/login">Login</a>
+                <a class="nav-link text-white" href="/register">Register</a>
+            }
+            else
+            {
+                <a class="nav-link text-white" href="/patients">Patients</a>
+                <a class="nav-link text-white" href="/doctors">Doctors</a>
+                <a class="nav-link text-white" href="/appointments">Appointments</a>
+                @if (AuthSvc.IsAdmin)
+                {
+                    <span class="nav-link text-warning">👑 Admin</span>
+                }
+                <button class="btn btn-outline-light btn-sm"
+                        @onclick="HandleLogout">
+                    Logout
+                </button>
+            }
+        </div>
+    </div>
 </nav>
 
-@Body
+<div class="container">
+    @Body
+</div>
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    void HandleLogout()
+    {
+        AuthSvc.Logout();
+        Nav.NavigateTo("/login");
+    }
+}

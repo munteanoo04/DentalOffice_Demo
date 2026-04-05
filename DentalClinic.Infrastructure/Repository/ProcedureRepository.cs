@@ -1,6 +1,6 @@
 ﻿using DentalClinic.Application.Contracts.Interfaces;
 using DentalClinic.Domain.Entities;
-using DentalClinic.Infrastructure.Data;
+using DentalClinic.Infrastructure.DbContext;
 using Microsoft.EntityFrameworkCore;
 
 namespace DentalClinic.Infrastructure.Repository;

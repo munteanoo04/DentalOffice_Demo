@@ -1,0 +1,111 @@
+﻿@page "/register"
+@inject AuthService AuthSvc
+@inject NavigationManager Nav
+@rendermode InteractiveServer
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white text-center">
+                <h4>🦷 Create Account</h4>
+            </div>
+            <div class="card-body p-4">
+
+                @if (_error is not null)
+                {
+                    <div class="alert alert-danger">@_error</div>
+                }
+                @if (_success)
+                {
+                    <div class="alert alert-success">
+                        Account created! <a href="/login">Login here</a>
+                    </div>
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">First name</label>
+                        <input class="form-control" @bind="_firstName" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Last name</label>
+                        <input class="form-control" @bind="_lastName" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" @bind="_email" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Phone number</label>
+                        <input class="form-control" @bind="_phone" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" @bind="_password" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Confirm password</label>
+                        <input type="password" class="form-control"
+                               @bind="_confirmPassword" />
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-primary w-100"
+                                @onclick="HandleRegister">
+                            Create Account
+                        </button>
+                    </div>
+                    <div class="col-12 text-center">
+                        <small>
+                            Already have an account?
+                            <a href="/login">Login</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    string _firstName = string.Empty;
+    string _lastName = string.Empty;
+    string _email = string.Empty;
+    string _phone = string.Empty;
+    string _password = string.Empty;
+    string _confirmPassword = string.Empty;
+    string? _error = null;
+    bool _success = false;
+
+    async Task HandleRegister()
+    {
+        _error = null;
+        _success = false;
+
+        if (string.IsNullOrWhiteSpace(_firstName) ||
+            string.IsNullOrWhiteSpace(_lastName) ||
+            string.IsNullOrWhiteSpace(_email) ||
+            string.IsNullOrWhiteSpace(_password))
+        {
+            _error = "All fields are required.";
+            return;
+        }
+
+        if (_password != _confirmPassword)
+        {
+            _error = "Passwords do not match.";
+            return;
+        }
+
+        if (_password.Length < 6)
+        {
+            _error = "Password must be at least 6 characters.";
+            return;
+        }
+
+        var ok = await AuthSvc.RegisterAsync(
+            _firstName, _lastName, _email, _phone, _password);
+
+        if (ok) _success = true;
+        else _error = "Email already registered or server error.";
+    }
+}

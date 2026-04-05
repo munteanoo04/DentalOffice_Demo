@@ -1,6 +1,6 @@
 ﻿using DentalClinic.Application.Contracts.Interfaces;
 using DentalClinic.Domain.Entities;
-using DentalClinic.Infrastructure.Data;
+using DentalClinic.Infrastructure.DbContext;
 using Microsoft.EntityFrameworkCore;
 
 namespace DentalClinic.Infrastructure.Repository;
@@ -28,5 +28,15 @@ public class DoctorRepository : IDoctorRepository
     {
         _ctx.Doctors.Update(doctor);
         await _ctx.SaveChangesAsync(ct);
+    }
+
+    public async Task DeleteAsync(int id, CancellationToken ct = default)
+    {
+        var doctor = await GetByIdAsync(id, ct);
+        if (doctor is not null)
+        {
+            doctor.Deactivate();
+            await _ctx.SaveChangesAsync(ct);
+        }
     }
 }

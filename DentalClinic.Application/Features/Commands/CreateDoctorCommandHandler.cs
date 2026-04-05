@@ -15,15 +15,12 @@ public class CreateDoctorCommandHandler : IRequestHandler<CreateDoctorCommand, i
 
     public async Task<int> Handle(CreateDoctorCommand cmd, CancellationToken ct)
     {
-        var doctor = new Doctor
-        {
-            FirstName = cmd.FirstName,
-            LastName = cmd.LastName,
-            Email = cmd.Email,
-            PhoneNumber = cmd.PhoneNumber,
-            Specialization = cmd.Specialization,
-            IsActive = true
-        };
+        var doctor = Doctor.Create(
+            cmd.FirstName,
+            cmd.LastName,
+            cmd.Email,
+            cmd.PhoneNumber,
+            cmd.Specialization);
 
         await _repo.AddAsync(doctor, ct);
         return doctor.Id;
