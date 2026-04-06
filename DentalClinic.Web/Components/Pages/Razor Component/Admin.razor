@@ -1,0 +1,217 @@
+﻿@page "/admin"
+@inject AppointmentService AppointmentSvc
+@inject AuthService AuthSvc
+@inject NavigationManager Nav
+@rendermode InteractiveServer
+
+@if (!AuthSvc.IsAdmin)
+{
+    <div class="alert alert-danger mt-4">
+        ⛔ Access denied. Admins only.
+    </div>
+}
+else
+{
+    <h3 class="mb-4">👑 Admin Dashboard</h3>
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white text-center p-3">
+                <div class="fs-2 fw-bold">@_all.Count</div>
+                <div>Total Appointments</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white text-center p-3">
+                <div class="fs-2 fw-bold">
+                    @_all.Count(a => a.Status == "Scheduled")
+                </div>
+                <div>Scheduled</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white text-center p-3">
+                <div class="fs-2 fw-bold">
+                    @_all.Count(a => a.Status == "Cancelled")
+                </div>
+                <div>Cancelled</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white text-center p-3">
+                <div class="fs-2 fw-bold">
+                    @_all.Count(a => a.Status == "Completed")
+                </div>
+                <div>Completed</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <input class="form-control" placeholder="Search patient or doctor..."
+                           @bind="_search" @bind:event="oninput" />
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" @bind="_filterStatus">
+                        <option value="">All statuses</option>
+                        <option value="Scheduled">Scheduled</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="date" class="form-control"
+                           @bind="_filterFrom" />
+                </div>
+                <div class="col-md-2">
+                    <input type="date" class="form-control"
+                           @bind="_filterTo" />
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-secondary w-100"
+                            @onclick="ClearFilters">
+                        Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointments Table -->
+    @if (_filtered.Count == 0)
+    {
+        <div class="alert alert-info">No appointments found.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="cursor:pointer" @onclick='() => Sort("date")'>
+                            Date @SortIcon("date")
+                        </th>
+                        <th style="cursor:pointer" @onclick='() => Sort("patient")'>
+                            Patient @SortIcon("patient")
+                        </th>
+                        <th style="cursor:pointer" @onclick='() => Sort("doctor")'>
+                            Doctor @SortIcon("doctor")
+                        </th>
+                        <th>Procedure</th>
+                        <th style="cursor:pointer" @onclick='() => Sort("status")'>
+                            Status @SortIcon("status")
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in _filtered)
+                    {
+                        <tr>
+                            <td>@a.ScheduledAt.ToString("dd MMM yyyy HH:mm")</td>
+                            <td>@a.PatientName</td>
+                            <td>@a.DoctorName</td>
+                            <td>@a.ProcedureName</td>
+                            <td>
+                                <span class="badge @GetBadge(a.Status)">
+                                    @a.Status
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted">
+            Showing @_filtered.Count of @_all.Count appointments
+        </p>
+    }
+}
+
+@code {
+    List<AppointmentDto> _all = new();
+    string _search = string.Empty;
+    string _filterStatus = string.Empty;
+    DateTime? _filterFrom = null;
+    DateTime? _filterTo = null;
+    string _sortBy = "date";
+    bool _sortAsc = false;
+
+    List<AppointmentDto> _filtered => ApplyFilters();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthSvc.IsAdmin)
+            _all = await AppointmentSvc.GetAllAsync();
+    }
+
+    List<AppointmentDto> ApplyFilters()
+    {
+        var q = _all.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(_search))
+            q = q.Where(a =>
+                a.PatientName.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
+                a.DoctorName.Contains(_search, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(_filterStatus))
+            q = q.Where(a => a.Status == _filterStatus);
+
+        if (_filterFrom.HasValue)
+            q = q.Where(a => a.ScheduledAt >= _filterFrom.Value);
+
+        if (_filterTo.HasValue)
+            q = q.Where(a => a.ScheduledAt <= _filterTo.Value.AddDays(1));
+
+        q = _sortBy switch
+        {
+            "patient" => _sortAsc
+                ? q.OrderBy(a => a.PatientName)
+                : q.OrderByDescending(a => a.PatientName),
+            "doctor" => _sortAsc
+                ? q.OrderBy(a => a.DoctorName)
+                : q.OrderByDescending(a => a.DoctorName),
+            "status" => _sortAsc
+                ? q.OrderBy(a => a.Status)
+                : q.OrderByDescending(a => a.Status),
+            _ => _sortAsc
+                ? q.OrderBy(a => a.ScheduledAt)
+                : q.OrderByDescending(a => a.ScheduledAt)
+        };
+
+        return q.ToList();
+    }
+
+    void Sort(string column)
+    {
+        if (_sortBy == column) _sortAsc = !_sortAsc;
+        else { _sortBy = column; _sortAsc = true; }
+    }
+
+    string SortIcon(string column)
+    {
+        if (_sortBy != column) return "⇅";
+        return _sortAsc ? "↑" : "↓";
+    }
+
+    void ClearFilters()
+    {
+        _search = string.Empty;
+        _filterStatus = string.Empty;
+        _filterFrom = null;
+        _filterTo = null;
+    }
+
+    string GetBadge(string status) => status switch
+    {
+        "Scheduled" => "bg-primary",
+        "Completed" => "bg-success",
+        "Cancelled" => "bg-danger",
+        "InProgress" => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
+}

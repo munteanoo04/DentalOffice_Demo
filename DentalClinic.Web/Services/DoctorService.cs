@@ -7,23 +7,19 @@ namespace DentalClinic.Web.Services;
 public class DoctorService
 {
     private readonly AuthService _auth;
-
-    public DoctorService(AuthService auth)
-    {
-        _auth = auth;
-    }
+    public DoctorService(AuthService auth) => _auth = auth;
 
     public async Task<List<DoctorDto>> GetAllAsync()
     {
         var http = _auth.CreateAuthorizedClient();
-        var result = await http.GetFromJsonAsync<List<DoctorDto>>("api/doctors");
-        return result ?? new List<DoctorDto>();
+        return await http.GetFromJsonAsync<List<DoctorDto>>("api/doctors")
+               ?? new List<DoctorDto>();
     }
 
-    public async Task<bool> CreateAsync(CreateDoctorRequest request)
+    public async Task<bool> CreateAsync(CreateDoctorRequest req)
     {
         var http = _auth.CreateAuthorizedClient();
-        var response = await http.PostAsJsonAsync("api/doctors", request);
+        var response = await http.PostAsJsonAsync("api/doctors", req);
         return response.IsSuccessStatusCode;
     }
 

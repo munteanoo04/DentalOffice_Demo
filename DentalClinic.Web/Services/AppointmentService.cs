@@ -7,28 +7,14 @@ namespace DentalClinic.Web.Services;
 public class AppointmentService
 {
     private readonly AuthService _auth;
-
-    public AppointmentService(AuthService auth)
-    {
-        _auth = auth;
-    }
+    public AppointmentService(AuthService auth) => _auth = auth;
 
     public async Task<List<AppointmentDto>> GetByPatientAsync(int patientId)
     {
         var http = _auth.CreateAuthorizedClient();
-        var result = await http.GetFromJsonAsync<List<AppointmentDto>>(
-            $"api/appointments/patient/{patientId}");
-
-        return result ?? new List<AppointmentDto>();
-    }
-
-    public async Task<List<AppointmentDto>> GetByDoctorAsync(int doctorId)
-    {
-        var http = _auth.CreateAuthorizedClient();
-        var result = await http.GetFromJsonAsync<List<AppointmentDto>>(
-            $"api/appointments/doctor/{doctorId}");
-
-        return result ?? new List<AppointmentDto>();
+        return await http.GetFromJsonAsync<List<AppointmentDto>>(
+            $"api/appointments/patient/{patientId}")
+               ?? new List<AppointmentDto>();
     }
 
     public async Task<bool> CreateAsync(CreateAppointmentRequest request)
@@ -41,7 +27,15 @@ public class AppointmentService
     public async Task<bool> CancelAsync(int id)
     {
         var http = _auth.CreateAuthorizedClient();
-        var response = await http.DeleteAsync($"api/appointments/{id}");
+        var response = await http.PutAsync(
+            $"api/appointments/{id}/cancel", null);
         return response.IsSuccessStatusCode;
+    }
+
+    public async Task<List<AppointmentDto>> GetAllAsync()
+    {
+        var http = _auth.CreateAuthorizedClient();
+        return await http.GetFromJsonAsync<List<AppointmentDto>>("api/appointments")
+               ?? new List<AppointmentDto>();
     }
 }

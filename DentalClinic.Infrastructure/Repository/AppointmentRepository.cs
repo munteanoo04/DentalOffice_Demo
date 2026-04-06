@@ -37,6 +37,14 @@ public class AppointmentRepository : IAppointmentRepository
             .OrderByDescending(a => a.ScheduledAt)
             .ToListAsync(ct);
 
+    public async Task<IEnumerable<Appointment>> GetAllAsync(CancellationToken ct = default)
+        => await _ctx.Appointments
+            .Include(a => a.Patient)
+            .Include(a => a.Doctor)
+            .Include(a => a.Procedure)
+            .OrderByDescending(a => a.ScheduledAt)
+            .ToListAsync(ct);
+
     public async Task AddAsync(Appointment appointment, CancellationToken ct = default)
     {
         await _ctx.Appointments.AddAsync(appointment, ct);

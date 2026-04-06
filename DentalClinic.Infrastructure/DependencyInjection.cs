@@ -22,7 +22,9 @@ public static class DependencyInjection
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
         services.AddScoped<IProcedureRepository, ProcedureRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<JwtTokenService>();
+        services.AddScoped<AppointmentReminderService>();
 
         return services;
     }

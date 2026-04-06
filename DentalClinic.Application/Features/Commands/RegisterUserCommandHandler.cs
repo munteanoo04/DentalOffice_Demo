@@ -7,10 +7,14 @@ namespace DentalClinic.Application.Features.Commands;
 public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, int>
 {
     private readonly IUserRepository _repo;
+    private readonly IEmailService _email;
 
-    public RegisterUserCommandHandler(IUserRepository repo)
+    public RegisterUserCommandHandler(
+        IUserRepository repo,
+        IEmailService email)
     {
         _repo = repo;
+        _email = email;
     }
 
     public async Task<int> Handle(RegisterUserCommand cmd, CancellationToken ct)
@@ -30,6 +34,15 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, i
             "Client");
 
         await _repo.AddAsync(user, ct);
+
+        // Send confirmation email (don't fail if email fails)
+        try
+        {
+            await _email.SendConfirmationEmailAsync(
+                user.Email, user.FirstName, ct);
+        }
+        catch { /* log in production */ }
+
         return user.Id;
     }
 }

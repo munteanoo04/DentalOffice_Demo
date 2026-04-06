@@ -20,17 +20,6 @@ public class AppointmentDto
 
     public string Status { get; set; } = "";
 }
-public class CreateAppointmentRequest
-{
-    public int PatientId { get; set; }
-    public int DoctorId { get; set; }
-    public int ProcedureId { get; set; }
 
-    public string TreatmentType { get; set; } = string.Empty;
-    public string Notes { get; set; } = string.Empty;
 
-    public DateTime ScheduledAt { get; set; }
-
-    public DateOnly DateOfBirth { get; set; }
-}
 

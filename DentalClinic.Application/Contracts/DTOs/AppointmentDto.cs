@@ -1,12 +1,12 @@
 ﻿namespace DentalClinic.Application.Contracts.DTOs;
 
 public record AppointmentDto(
-    Guid Id,
-    Guid PatientId,
+    int Id,
+    int PatientId,
     string PatientName,
-    Guid DoctorId,
+    int DoctorId,
     string DoctorName,
-    Guid ProcedureId,
+    int ProcedureId,
     string ProcedureName,
     DateTime ScheduledAt,
     string TreatmentType,

@@ -1,0 +1,176 @@
+﻿@page "/book"
+@inject ProcedureService ProcedureSvc
+@inject DoctorService DoctorSvc
+@inject AppointmentService AppointmentSvc
+@inject AuthService AuthSvc
+@inject NavigationManager Nav
+@rendermode InteractiveServer
+
+<h3 class="mb-4">📅 Book an Appointment</h3>
+
+@if (!AuthSvc.IsLoggedIn)
+{
+    <div class="alert alert-warning">
+        Please <a href="/login">login</a> first.
+    </div>
+}
+else
+{
+    @if (_success)
+    {
+        <div class="alert alert-success">
+            ✅ Appointment booked successfully!
+            <a href="/my-appointments" class="ms-2">View my appointments</a>
+        </div>
+    }
+
+    @if (_error is not null)
+    {
+        <div class="alert alert-danger">@_error</div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <div class="row g-4">
+
+                <!-- Step 1: Select Procedure -->
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">1. Select Procedure</label>
+                    <select class="form-select"
+                            @onchange="OnProcedureChanged">
+                        <option value="">-- Choose procedure --</option>
+                        @foreach (var p in _procedures)
+                        {
+                            <option value="@p.Id">
+                                @p.Name — @p.Price MDL (@p.DurationMinutes min)
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Step 2: Select Date and Time -->
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">2. Select Date & Time</label>
+                    <input type="datetime-local" class="form-control"
+                           @bind="_scheduledAt"
+                           min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                </div>
+
+                <!-- Step 3: Select Doctor -->
+                <div class="col-12">
+                    <label class="form-label fw-bold">3. Select Doctor</label>
+                    @if (_doctors.Count == 0)
+                    {
+                        <p class="text-muted">Select a procedure first.</p>
+                    }
+                    else
+                    {
+                        <div class="row g-3">
+                            @foreach (var d in _doctors)
+                            {
+                                <div class="col-md-4">
+                                    <div class="card @(_selectedDoctorId == d.Id ? "border-primary" : "")"
+                                         style="cursor:pointer"
+                                         @onclick="() => _selectedDoctorId = d.Id">
+                                        <div class="card-body text-center">
+                                            <div class="display-6">👨‍⚕️</div>
+                                            <h6>@d.FirstName @d.LastName</h6>
+                                            <small class="text-muted">
+                                                @d.Specialization
+                                            </small>
+                                            @if (_selectedDoctorId == d.Id)
+                                            {
+                                                <div class="mt-2">
+                                                    <span class="badge bg-primary">
+                                                        Selected ✓
+                                                    </span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <!-- Step 4: Notes -->
+                <div class="col-12">
+                    <label class="form-label fw-bold">
+                        4. Notes (optional)
+                    </label>
+                    <textarea class="form-control" rows="3"
+                              @bind="_notes"
+                              placeholder="Any special requests or notes...">
+                        </textarea>
+                </div>
+
+                <div class="col-12">
+                    <button class="btn btn-primary btn-lg"
+                            @onclick="HandleBook"
+                            disabled="@(_selectedProcedureId == 0 ||
+                                                                    _selectedDoctorId == 0)">
+                        Book Appointment
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    List<ProcedureDto> _procedures = new();
+    List<DoctorDto> _doctors = new();
+    int _selectedProcedureId = 0;
+    int _selectedDoctorId = 0;
+    DateTime _scheduledAt = DateTime.Now.AddDays(1);
+    string? _notes = null;
+    bool _success = false;
+    string? _error = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthSvc.IsLoggedIn)
+            _procedures = await ProcedureSvc.GetAllAsync();
+    }
+
+    async Task OnProcedureChanged(ChangeEventArgs e)
+    {
+        _selectedProcedureId = int.TryParse(e.Value?.ToString(), out var id) ? id : 0;
+        _selectedDoctorId = 0;
+
+        if (_selectedProcedureId > 0)
+            _doctors = await DoctorSvc.GetAllAsync();
+        else
+            _doctors = new();
+    }
+
+    async Task HandleBook()
+    {
+        _error = null;
+        _success = false;
+
+        if (_scheduledAt < DateTime.Now)
+        {
+            _error = "Please select a future date and time.";
+            return;
+        }
+
+
+        var req = new CreateAppointmentRequest
+        {
+            PatientId = 1,
+            DoctorId = _selectedDoctorId,
+            ProcedureId = _selectedProcedureId,
+            ScheduledAt = _scheduledAt,
+            TreatmentType = _procedures
+                .First(p => p.Id == _selectedProcedureId).Name,
+            Notes = _notes
+        };
+
+        var ok = await AppointmentSvc.CreateAsync(req);
+        if (ok) _success = true;
+        else _error = "Booking failed. Please try again.";
+    }
+}
